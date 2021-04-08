@@ -1,13 +1,13 @@
 const { ethers } = require("ethers");
-const process = require('process');
-const IUniswapV2Router02 = require('@uniswap/v2-periphery/build/IUniswapV2Router02.json');
+const { legos } = require('@studydefi/money-legos');
+const { sleep } = require('./utils.js');
+const FileCache = require('./FileCache.js');
+const IUniswapV2ERC20 = require('@uniswap/v2-core/build/IUniswapV2ERC20.json');
 const IUniswapV2Factory = require('@uniswap/v2-core/build/IUniswapV2Factory.json');
 const IUniswapV2Pair = require('@uniswap/v2-core/build/IUniswapV2Pair.json');
-const IUniswapV2ERC20 = require('@uniswap/v2-core/build/IUniswapV2ERC20.json');
-const { legos } = require('@studydefi/money-legos');
+const IUniswapV2Router02 = require('@uniswap/v2-periphery/build/IUniswapV2Router02.json');
 const path = require('path');
-const FileCache = require('./FileCache.js');
-const { sleep } = require('./utils.js');
+const process = require('process');
 
 // setup cache
 const CACHE_DIR = path.join(__dirname, '..', 'ethereum-cache');
