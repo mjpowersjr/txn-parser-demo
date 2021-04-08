@@ -18,7 +18,7 @@ const cache = new FileCache(CACHE_DIR);
 // requests are heavily throttled on public nodes
 const REQUEST_RATE = 1 * 1000;
 
-const provider = ethers.getDefaultProvider()
+const provider = new ethers.providers.InfuraProvider();
 
 
 // combine multiple common ABIs into a single interface
@@ -37,13 +37,13 @@ async function getBlock(blockNumber) {
     let blockData = null;
     const cacheKey = 'block.' + blockNumber;
     try {
-        blockData = await cache.get(cacheKey);
+        blockData =JSON.parse(await cache.get(cacheKey));
     } catch(e) {
         // throttle requests to node
         await sleep(REQUEST_RATE); 
 
         blockData = await provider.getBlock(blockNumber);
-        cache.set(cacheKey, blockData);
+        await cache.set(cacheKey, JSON.stringify(blockData, null, 2));
     }
     return blockData;
 }
@@ -52,37 +52,58 @@ async function getTransaction(hash) {
     let transactionData = null;
     const cacheKey = 'txn.' + hash;
     try {
-        transactionData = await cache.get(cacheKey);
+        transactionData = JSON.parse(await cache.get(cacheKey));
+        // TODO: it seems that public nodes no longer return the raw RLP encoded transaction data
+        // raw txns are hex strings of RLP encoded data
+        // const rawTransaction = await cache.get(cacheKey);
+        // transactionData = ethers.utils.parseTransaction(rawTransaction);
     } catch(e) {
         // throttle requests to node
         await sleep(REQUEST_RATE); 
 
         transactionData = await provider.getTransaction(hash);
-        cache.set(cacheKey, transactionData);
+        // await cache.set(cacheKey, transactionData.raw);
+        await cache.set(cacheKey,JSON.stringify(transactionData));
     }
     return transactionData;
 }
 
-
-async function main(args) {
-
-    const blockNumbers = [
-        1, // genesis block
-        46147, // block with first txn
-    ]
+async function processRecentBlocks(max) {
 
     // determine most recent block height
     const latestBlockNumber = await provider.getBlockNumber()
 
     // add recent blocks to queue
-    for(let i = 0; i < 5; i++) {
-        blockNumbers.push(latestBlockNumber - i);
-    }
-
-    for(const blockNumber of blockNumbers) {
+    for(let i = 0; i < max; i++) {
+        const blockNumber = latestBlockNumber - i;
         const block = await getBlock(blockNumber);
         await processBlock(block);
     }
+}
+
+
+async function main(args) {
+
+    const arg = args.shift();
+
+    if (arg && arg.startsWith('0x')) {
+        const transaction = await getTransaction(arg);
+        await processTransaction(transaction);
+    } else if (arg && Number.parseInt(arg)) {
+        const block = await getBlock(arg);
+        await processBlock(block);
+    } else {
+        // genesis block
+        await processBlock(1);
+
+        // first block with a txn
+        await processBlock(46147);
+
+        // a few recent blocks
+        await processRecentBlocks(5); 
+    }
+
+
 
 }
 

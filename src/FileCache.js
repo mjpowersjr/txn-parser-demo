@@ -14,18 +14,16 @@ class FileCache {
     }
 
     async set(key, data) {
-        const serialized = JSON.stringify(data, null, 2);
-        return fs.promises.writeFile(
+        fs.promises.writeFile(
             this.buildPath(key),
-            serialized
+            data
         );
     }
 
     async get(key) {
-        const serialized = await fs.promises.readFile(
+        return fs.promises.readFile(
             this.buildPath(key)
             );
-        return JSON.parse(serialized);
     }
 
     buildPath(key) {

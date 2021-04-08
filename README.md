@@ -17,6 +17,12 @@ cd txn-parser-demo
 # install node module dependencies
 npm install
 
-# launch demo
+# launch demo, parses a few blocks
 npm start
+
+# parse specific block
+npm start 42
+
+# parse specific transaction
+npm start 0xb183da0fbdda9b6f2622a282fdd27d6b284c4aa3299742329de88c9e7fa71b2c
 ```
