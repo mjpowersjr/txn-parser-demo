@@ -11,8 +11,8 @@ For development, you will only need [Node.js](https://nodejs.org/) v14+
 
 ## Quick Start
 ```sh
-git clone https://github.com/YOUR_USERNAME/PROJECT_TITLE
-cd PROJECT_TITLE
+git clone https://github.com/mjpowersjr/txn-parser-demo.git
+cd txn-parser-demo
 
 # install node module dependencies
 npm install
